@@ -1,0 +1,2354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Panel - Talent Acquisition Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .company-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .company-logo {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+
+        .company-details h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .company-details p {
+            opacity: 0.8;
+            font-size: 13px;
+        }
+
+        .approval-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .status-approved {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+            border: 1px solid rgba(34, 197, 94, 0.3);
+        }
+
+        .status-pending {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            margin: 5px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            border-right: 3px solid #fff;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 20px;
+        }
+
+        .nav-link .badge {
+            margin-left: auto;
+            background: rgba(239, 68, 68, 0.9);
+            color: white;
+            border-radius: 12px;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            margin: -20px -20px 20px -20px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 28px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-badge {
+            position: relative;
+            color: #4f46e5;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .notification-badge .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            border-left: 4px solid transparent;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .stat-card.jobs { border-left-color: #3b82f6; }
+        .stat-card.applications { border-left-color: #10b981; }
+        .stat-card.interviews { border-left-color: #f59e0b; }
+        .stat-card.hires { border-left-color: #8b5cf6; }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+        }
+
+        .stat-card.jobs .stat-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+        .stat-card.applications .stat-icon { background: linear-gradient(135deg, #10b981, #047857); }
+        .stat-card.interviews .stat-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-card.hires .stat-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .stat-change.positive {
+            color: #10b981;
+        }
+
+        .stat-change.negative {
+            color: #ef4444;
+        }
+
+        /* Charts */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: #1f2937;
+            font-size: 18px;
+        }
+
+        /* Tables */
+        .table-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            padding: 20px 25px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            color: #1f2937;
+            font-size: 18px;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .status-closed {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-draft {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .status-on-hold {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-applied {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-interview {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-hired {
+            background: #d1fae5;
+            color: #047857;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-offered {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        /* Search and Filters */
+        .search-filters {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 3% auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            color: #1f2937;
+            font-size: 20px;
+        }
+
+        .modal-body {
+            padding: 25px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+
+        .close:hover {
+            color: #374151;
+        }
+
+        /* Alert Messages */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border-left-color: #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border-left-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            border-left-color: #10b981;
+            color: #047857;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* Candidate Profile Cards */
+        .candidate-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .candidate-card:hover {
+            border-color: #4f46e5;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .candidate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .candidate-info h4 {
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .candidate-info p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .candidate-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .meta-label {
+            font-size: 12px;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 3px;
+        }
+
+        .meta-value {
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 260px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="company-info">
+                    <div class="company-logo">
+                        <i class="fas fa-building"></i>
+                    </div>
+                    <div class="company-details">
+                        <h2>TechCorp Solutions</h2>
+                        <p>Technology Company</p>
+                    </div>
+                </div>
+                <div class="approval-status status-approved">
+                    <i class="fas fa-check-circle"></i> Approved
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="jobs">
+                        <i class="fas fa-briefcase"></i>
+                        My Job Postings
+                        <span class="badge">3</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="applications">
+                        <i class="fas fa-users"></i>
+                        Applications
+                        <span class="badge">23</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="interviews">
+                        <i class="fas fa-calendar-check"></i>
+                        Interviews
+                        <span class="badge">5</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="placement">
+                        <i class="fas fa-handshake"></i>
+                        Placement Services
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="history">
+                        <i class="fas fa-history"></i>
+                        Activity History
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="analytics">
+                        <i class="fas fa-chart-line"></i>
+                        Analytics & Reports
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="profile">
+                        <i class="fas fa-cog"></i>
+                        Company Profile
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 id="page-title">Dashboard</h1>
+                <div class="header-actions">
+                    <div class="notification-badge">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">8</span>
+                    </div>
+                    <div class="user-info">
+                        <div class="user-avatar">JM</div>
+                        <div>
+                            <strong>Jane Manager</strong>
+                            <br>
+                            <small>HR Manager</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card jobs">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-number">12</div>
+                                <div class="stat-label">Active Job Postings</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> +3 this month
+                                </div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card applications">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-number">247</div>
+                                <div class="stat-label">Total Applications</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> +18% this week
+                                </div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card interviews">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-number">34</div>
+                                <div class="stat-label">Interviews Scheduled</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 5 this week
+                                </div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card hires">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-number">8</div>
+                                <div class="stat-label">Successful Hires</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> 2 this month
+                                </div>
+                            </div>
+                            <div class="stat-icon">
+                                <i class="fas fa-user-check"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <h3>Application Trends (Last 6 Months)</h3>
+                        <canvas id="applicationChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Hiring Funnel</h3>
+                        <canvas id="funnelChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Recent Activity</h3>
+                        <button class="btn btn-primary btn-sm">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Activity</th>
+                                <th>Candidate/Job</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>5 mins ago</td>
+                                <td>New application received</td>
+                                <td>Senior Software Engineer</td>
+                                <td><span class="status-badge status-applied">New</span></td>
+                            </tr>
+                            <tr>
+                                <td>1 hour ago</td>
+                                <td>Interview completed</td>
+                                <td>Alice Johnson</td>
+                                <td><span class="status-badge status-interview">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>3 hours ago</td>
+                                <td>Job posting published</td>
+                                <td>Marketing Manager</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>1 day ago</td>
+                                <td>Offer accepted</td>
+                                <td>Bob Smith</td>
+                                <td><span class="status-badge status-hired">Hired</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Jobs Section -->
+            <div id="jobs" class="content-section">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Your company account is approved! You can now post unlimited job vacancies and manage applications.
+                </div>
+
+                <div class="search-filters">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label>Search Jobs</label>
+                            <input type="text" class="form-control" placeholder="Job title, department...">
+                        </div>
+                        <div class="form-group">
+                            <label>Status Filter</label>
+                            <select class="form-control">
+                                <option>All Statuses</option>
+                                <option>Active</option>
+                                <option>Draft</option>
+                                <option>On Hold</option>
+                                <option>Closed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Date Posted</label>
+                            <select class="form-control">
+                                <option>All Time</option>
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                                <option>Last 3 months</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>My Job Postings</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-success" onclick="openModal('notifyPlacementModal')">
+                                <i class="fas fa-bullhorn"></i> Notify Placement Services
+                            </button>
+                            <button class="btn btn-primary" onclick="openModal('postJobModal')">
+                                <i class="fas fa-plus"></i> Post New Job
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Department</th>
+                                <th>Type</th>
+                                <th>Applications</th>
+                                <th>Posted Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Senior Software Engineer</strong><br>
+                                    <small>$90,000 - $130,000</small>
+                                </td>
+                                <td>Engineering</td>
+                                <td>Full-time</td>
+                                <td>
+                                    <strong>47</strong> applications<br>
+                                    <small>12 new</small>
+                                </td>
+                                <td>May 20, 2024</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <button class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm">
+                                            <i class="fas fa-pause"></i> Hold
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Marketing Manager</strong><br>
+                                    <small>$70,000 - $95,000</small>
+                                </td>
+                                <td>Marketing</td>
+                                <td>Full-time</td>
+                                <td>
+                                    <strong>23</strong> applications<br>
+                                    <small>5 new</small>
+                                </td>
+                                <td>May 18, 2024</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <button class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="btn btn-danger btn-sm">
+                                            <i class="fas fa-times"></i> Close
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>UX Designer</strong><br>
+                                    <small>$65,000 - $85,000</small>
+                                </td>
+                                <td>Design</td>
+                                <td>Full-time</td>
+                                <td>
+                                    <strong>31</strong> applications<br>
+                                    <small>2 new</small>
+                                </td>
+                                <td>May 15, 2024</td>
+                                <td><span class="status-badge status-on-hold">On Hold</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <button class="btn btn-success btn-sm">
+                                            <i class="fas fa-play"></i> Activate
+                                        </button>
+                                        <button class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Applications Section -->
+            <div id="applications" class="content-section">
+                <div class="search-filters">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label>Search Candidates</label>
+                            <input type="text" class="form-control" placeholder="Name, skills, experience...">
+                        </div>
+                        <div class="form-group">
+                            <label>Job Position</label>
+                            <select class="form-control">
+                                <option>All Positions</option>
+                                <option>Senior Software Engineer</option>
+                                <option>Marketing Manager</option>
+                                <option>UX Designer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Application Status</label>
+                            <select class="form-control">
+                                <option>All Statuses</option>
+                                <option>Applied</option>
+                                <option>Under Review</option>
+                                <option>Interview Scheduled</option>
+                                <option>Offer Extended</option>
+                                <option>Hired</option>
+                                <option>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Job Applications</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-success">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-filter"></i> Advanced Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Application Cards -->
+                    <div style="padding: 20px;">
+                        <div class="candidate-card">
+                            <div class="candidate-header">
+                                <div class="candidate-info">
+                                    <h4>Alice Johnson</h4>
+                                    <p>alice.johnson@email.com • (555) 123-4567</p>
+                                </div>
+                                <span class="status-badge status-interview">Interview Scheduled</span>
+                            </div>
+                            <div class="candidate-meta">
+                                <div class="meta-item">
+                                    <div class="meta-label">Position Applied</div>
+                                    <div class="meta-value">Senior Software Engineer</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Experience</div>
+                                    <div class="meta-value">5 years</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Skills</div>
+                                    <div class="meta-value">React, Node.js, Python</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Applied Date</div>
+                                    <div class="meta-value">May 22, 2024</div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View Profile
+                                </button>
+                                <button class="btn btn-success btn-sm" onclick="openModal('scheduleInterviewModal')">
+                                    <i class="fas fa-calendar-plus"></i> Schedule Interview
+                                </button>
+                                <button class="btn btn-warning btn-sm" onclick="openModal('updateStatusModal')">
+                                    <i class="fas fa-edit"></i> Update Status
+                                </button>
+                                <button class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-download"></i> Resume
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="candidate-card">
+                            <div class="candidate-header">
+                                <div class="candidate-info">
+                                    <h4>Bob Smith</h4>
+                                    <p>bob.smith@email.com • (555) 987-6543</p>
+                                </div>
+                                <span class="status-badge status-applied">Under Review</span>
+                            </div>
+                            <div class="candidate-meta">
+                                <div class="meta-item">
+                                    <div class="meta-label">Position Applied</div>
+                                    <div class="meta-value">Marketing Manager</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Experience</div>
+                                    <div class="meta-value">7 years</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Skills</div>
+                                    <div class="meta-value">Digital Marketing, SEO, Analytics</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Applied Date</div>
+                                    <div class="meta-value">May 21, 2024</div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View Profile
+                                </button>
+                                <button class="btn btn-success btn-sm">
+                                    <i class="fas fa-calendar-plus"></i> Schedule Interview
+                                </button>
+                                <button class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Update Status
+                                </button>
+                                <button class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-download"></i> Resume
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="candidate-card">
+                            <div class="candidate-header">
+                                <div class="candidate-info">
+                                    <h4>Carol Wilson</h4>
+                                    <p>carol.wilson@email.com • (555) 456-7890</p>
+                                </div>
+                                <span class="status-badge status-offered">Offer Extended</span>
+                            </div>
+                            <div class="candidate-meta">
+                                <div class="meta-item">
+                                    <div class="meta-label">Position Applied</div>
+                                    <div class="meta-value">UX Designer</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Experience</div>
+                                    <div class="meta-value">4 years</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Skills</div>
+                                    <div class="meta-value">Figma, Sketch, User Research</div>
+                                </div>
+                                <div class="meta-item">
+                                    <div class="meta-label">Applied Date</div>
+                                    <div class="meta-value">May 18, 2024</div>
+                                </div>
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-eye"></i> View Profile
+                                </button>
+                                <button class="btn btn-success btn-sm">
+                                    <i class="fas fa-check"></i> Mark as Hired
+                                </button>
+                                <button class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Update Status
+                                </button>
+                                <button class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-download"></i> Resume
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interviews Section -->
+            <div id="interviews" class="content-section">
+                <div class="search-filters">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label>Date Range</label>
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Interview Status</label>
+                            <select class="form-control">
+                                <option>All Statuses</option>
+                                <option>Scheduled</option>
+                                <option>In Progress</option>
+                                <option>Completed</option>
+                                <option>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Position</label>
+                            <select class="form-control">
+                                <option>All Positions</option>
+                                <option>Senior Software Engineer</option>
+                                <option>Marketing Manager</option>
+                                <option>UX Designer</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Interview Schedule</h3>
+                        <button class="btn btn-primary" onclick="openModal('scheduleInterviewModal')">
+                            <i class="fas fa-calendar-plus"></i> Schedule Interview
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Position</th>
+                                <th>Interview Date</th>
+                                <th>Interview Type</th>
+                                <th>Interviewer</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Alice Johnson</strong><br>
+                                    <small>alice.johnson@email.com</small>
+                                </td>
+                                <td>Senior Software Engineer</td>
+                                <td>
+                                    <strong>May 28, 2024</strong><br>
+                                    <small>2:00 PM - 3:00 PM</small>
+                                </td>
+                                <td>Technical Interview</td>
+                                <td>
+                                    <strong>John Doe</strong><br>
+                                    <small>Senior Developer</small>
+                                </td>
+                                <td><span class="status-badge status-interview">Scheduled</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Reschedule
+                                        </button>
+                                        <button class="btn btn-danger btn-sm">
+                                            <i class="fas fa-times"></i> Cancel
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Bob Smith</strong><br>
+                                    <small>bob.smith@email.com</small>
+                                </td>
+                                <td>Marketing Manager</td>
+                                <td>
+                                    <strong>May 26, 2024</strong><br>
+                                    <small>10:00 AM - 11:00 AM</small>
+                                </td>
+                                <td>HR Interview</td>
+                                <td>
+                                    <strong>Jane Manager</strong><br>
+                                    <small>HR Manager</small>
+                                </td>
+                                <td><span class="status-badge status-hired">Completed</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i> View Feedback
+                                        </button>
+                                        <button class="btn btn-success btn-sm">
+                                            <i class="fas fa-plus"></i> Next Round
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Placement Services Section -->
+            <div id="placement" class="content-section">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Notify placement services about urgent job openings or specific recruitment needs. They can help you find qualified candidates faster.
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Available Placement Services</h3>
+                        <button class="btn btn-primary" onclick="openModal('notifyPlacementModal')">
+                            <i class="fas fa-bullhorn"></i> Send Notification
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service Provider</th>
+                                <th>Specializations</th>
+                                <th>Success Rate</th>
+                                <th>Last Contacted</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Elite Recruitment</strong><br>
+                                    <small>www.eliterecruit.com</small>
+                                </td>
+                                <td>IT, Finance, Healthcare</td>
+                                <td>
+                                    <strong>85%</strong><br>
+                                    <small>15 successful placements</small>
+                                </td>
+                                <td>May 20, 2024</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-envelope"></i> Contact
+                                        </button>
+                                        <button class="btn btn-success btn-sm">
+                                            <i class="fas fa-bullhorn"></i> Notify
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Tech Placement Pro</strong><br>
+                                    <small>www.techplacement.com</small>
+                                </td>
+                                <td>Software Development, DevOps</td>
+                                <td>
+                                    <strong>92%</strong><br>
+                                    <small>8 successful placements</small>
+                                </td>
+                                <td>May 15, 2024</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-envelope"></i> Contact
+                                        </button>
+                                        <button class="btn btn-success btn-sm">
+                                            <i class="fas fa-bullhorn"></i> Notify
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Executive Search Partners</strong><br>
+                                    <small>www.execsearch.com</small>
+                                </td>
+                                <td>Executive, Management</td>
+                                <td>
+                                    <strong>78%</strong><br>
+                                    <small>3 successful placements</small>
+                                </td>
+                                <td>Never</td>
+                                <td><span class="status-badge status-active">Available</span></td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-primary btn-sm">
+                                            <i class="fas fa-envelope"></i> Contact
+                                        </button>
+                                        <button class="btn btn-success btn-sm">
+                                            <i class="fas fa-bullhorn"></i> Notify
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div id="history" class="content-section">
+                <div class="search-filters">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label>Date Range</label>
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Activity Type</label>
+                            <select class="form-control">
+                                <option>All Activities</option>
+                                <option>Job Posted</option>
+                                <option>Application Received</option>
+                                <option>Interview Scheduled</option>
+                                <option>Status Updated</option>
+                                <option>Notification Sent</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Search</label>
+                            <input type="text" class="form-control" placeholder="Search activities...">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-search"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Activity History</h3>
+                        <div class="table-actions">
+                            <button class="btn btn-success">
+                                <i class="fas fa-download"></i> Export History
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Activity</th>
+                                <th>Details</th>
+                                <th>User</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>May 26, 2024</strong><br>
+                                    <small>14:30:15</small>
+                                </td>
+                                <td>Application Status Updated</td>
+                                <td>
+                                    Alice Johnson - Senior Software Engineer<br>
+                                    <small>Status changed from "Applied" to "Interview Scheduled"</small>
+                                </td>
+                                <td>Jane Manager</td>
+                                <td><span class="status-badge status-active">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>May 26, 2024</strong><br>
+                                    <small>10:45:30</small>
+                                </td>
+                                <td>Interview Scheduled</td>
+                                <td>
+                                    Alice Johnson - Senior Software Engineer<br>
+                                    <small>Technical Interview on May 28, 2024 at 2:00 PM</small>
+                                </td>
+                                <td>Jane Manager</td>
+                                <td><span class="status-badge status-active">Scheduled</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>May 25, 2024</strong><br>
+                                    <small>16:20:45</small>
+                                </td>
+                                <td>New Application</td>
+                                <td>
+                                    Alice Johnson applied for Senior Software Engineer<br>
+                                    <small>Resume received and processed</small>
+                                </td>
+                                <td>System</td>
+                                <td><span class="status-badge status-applied">New</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>May 24, 2024</strong><br>
+                                    <small>11:15:20</small>
+                                </td>
+                                <td>Placement Service Notified</td>
+                                <td>
+                                    Elite Recruitment notified about Marketing Manager position<br>
+                                    <small>Urgent hiring notification sent</small>
+                                </td>
+                                <td>Jane Manager</td>
+                                <td><span class="status-badge status-active">Sent</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>May 23, 2024</strong><br>
+                                    <small>09:30:00</small>
+                                </td>
+                                <td>Job Posted</td>
+                                <td>
+                                    Marketing Manager position published<br>
+                                    <small>Job ID: JOB-2024-0523-001</small>
+                                </td>
+                                <td>Jane Manager</td>
+                                <td><span class="status-badge status-active">Published</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analytics" class="content-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-number">23 days</div>
+                                <div class="stat-label">Average Time to Hire</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-down"></i> -5 days from last month
+                                </div>
+                            </div>
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #06b6d4, #0891b2);">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-number">3.2%</div>
+                                <div class="stat-label">Offer Acceptance Rate</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-up"></i> +0.8% improvement
+                                </div>
+                            </div>
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #84cc16, #65a30d);">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-number">72%</div>
+                                <div class="stat-label">Interview Show Rate</div>
+                                <div class="stat-change negative">
+                                    <i class="fas fa-arrow-down"></i> -3% from last month
+                                </div>
+                            </div>
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #f97316, #ea580c);">
+                                <i class="fas fa-users"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <div>
+                                <div class="stat-number">$2,847</div>
+                                <div class="stat-label">Cost per Hire</div>
+                                <div class="stat-change positive">
+                                    <i class="fas fa-arrow-down"></i> -$340 reduction
+                                </div>
+                            </div>
+                            <div class="stat-icon" style="background: linear-gradient(135deg, #ec4899, #db2777);">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <h3>Monthly Hiring Performance</h3>
+                        <canvas id="hiringChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Application Sources</h3>
+                        <canvas id="sourceChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <h3>Department-wise Applications</h3>
+                        <canvas id="departmentChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Candidate Pipeline</h3>
+                        <canvas id="pipelineChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Job Performance Reports</h3>
+                        <button class="btn btn-success">
+                            <i class="fas fa-download"></i> Export All Reports
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Applications</th>
+                                <th>Interview Rate</th>
+                                <th>Offer Rate</th>
+                                <th>Time to Fill</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Senior Software Engineer</td>
+                                <td>47</td>
+                                <td>23.4%</td>
+                                <td>8.5%</td>
+                                <td>18 days</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>Marketing Manager</td>
+                                <td>23</td>
+                                <td>34.8%</td>
+                                <td>13.0%</td>
+                                <td>25 days</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>UX Designer</td>
+                                <td>31</td>
+                                <td>29.0%</td>
+                                <td>9.7%</td>
+                                <td>22 days</td>
+                                <td><span class="status-badge status-on-hold">On Hold</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Company Profile Section -->
+            <div id="profile" class="content-section">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Company Profile Settings</h3>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Edit Profile
+                        </button>
+                    </div>
+                    <div style="padding: 25px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                            <div>
+                                <h4 style="margin-bottom: 20px; color: #1f2937;">Company Information</h4>
+                                <div class="form-group">
+                                    <label>Company Name</label>
+                                    <input type="text" class="form-control" value="TechCorp Solutions" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Industry</label>
+                                    <input type="text" class="form-control" value="Technology" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Website</label>
+                                    <input type="text" class="form-control" value="www.techcorp.com" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Company Size</label>
+                                    <input type="text" class="form-control" value="201-500 employees" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Founded</label>
+                                    <input type="text" class="form-control" value="2010" readonly>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 style="margin-bottom: 20px; color: #1f2937;">Contact Information</h4>
+                                <div class="form-group">
+                                    <label>Contact Person</label>
+                                    <input type="text" class="form-control" value="Jane Manager" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label>
+                                    <input type="email" class="form-control" value="jane@techcorp.com" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="text" class="form-control" value="+1 (555) 123-4567" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label>Address</label>
+                                    <textarea class="form-control" readonly>123 Tech Street
+Silicon Valley, CA 94025
+United States</textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 30px;">
+                            <h4 style="margin-bottom: 20px; color: #1f2937;">Company Description</h4>
+                            <textarea class="form-control" readonly style="min-height: 120px;">TechCorp Solutions is a leading technology company specializing in innovative software solutions for enterprise clients. We pride ourselves on delivering cutting-edge products that transform how businesses operate in the digital age. Our team of talented professionals works collaboratively to create solutions that drive growth and efficiency for our clients worldwide.</textarea>
+                        </div>
+                        <div style="margin-top: 30px;">
+                            <h4 style="margin-bottom: 20px; color: #1f2937;">Account Status</h4>
+                            <div style="background: #f0fdf4; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <i class="fas fa-check-circle" style="color: #10b981; font-size: 20px;"></i>
+                                    <div>
+                                        <strong style="color: #047857;">Account Approved</strong>
+                                        <br>
+                                        <small style="color: #065f46;">Your company account was approved on May 15, 2024. You have full access to all platform features.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Post Job Modal -->
+    <div id="postJobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Post New Job</h2>
+                <span class="close" onclick="closeModal('postJobModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label>Job Title *</label>
+                        <input type="text" class="form-control" placeholder="e.g., Senior Software Engineer" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Department *</label>
+                        <select class="form-control" required>
+                            <option value="">Select Department</option>
+                            <option>Engineering</option>
+                            <option>Marketing</option>
+                            <option>Sales</option>
+                            <option>Design</option>
+                            <option>HR</option>
+                            <option>Finance</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Location *</label>
+                        <input type="text" class="form-control" placeholder="City, State, Country" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Job Type *</label>
+                        <select class="form-control" required>
+                            <option value="">Select Type</option>
+                            <option>Full-time</option>
+                            <option>Part-time</option>
+                            <option>Contract</option>
+                            <option>Internship</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Salary Range</label>
+                        <input type="text" class="form-control" placeholder="e.g., $80,000 - $120,000">
+                    </div>
+                    <div class="form-group">
+                        <label>Experience Level</label>
+                        <select class="form-control">
+                            <option>Entry Level</option>
+                            <option>Mid Level</option>
+                            <option>Senior Level</option>
+                            <option>Executive</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Key Responsibilities *</label>
+                        <textarea class="form-control" placeholder="List the main responsibilities for this role" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Required Skills *</label>
+                        <textarea class="form-control" placeholder="List required skills and qualifications" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Application Deadline</label>
+                        <input type="date" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>Number of Vacancies</label>
+                        <input type="number" class="form-control" value="1" min="1">
+                    </div>
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('postJobModal')">Save as Draft</button>
+                        <button type="button" class="btn btn-danger" onclick="closeModal('postJobModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Post Job</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Interview Modal -->
+    <div id="scheduleInterviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule Interview</h2>
+                <span class="close" onclick="closeModal('scheduleInterviewModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label>Candidate *</label>
+                        <select class="form-control" required>
+                            <option value="">Select Candidate</option>
+                            <option>Alice Johnson - Senior Software Engineer</option>
+                            <option>Bob Smith - Marketing Manager</option>
+                            <option>Carol Wilson - UX Designer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Interview Type *</label>
+                        <select class="form-control" required>
+                            <option value="">Select Type</option>
+                            <option>Phone Screen</option>
+                            <option>Technical Interview</option>
+                            <option>HR Interview</option>
+                            <option>Final Round</option>
+                            <option>Panel Interview</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Interview Date *</label>
+                        <input type="date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interview Time *</label>
+                        <input type="time" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Duration (minutes)</label>
+                        <select class="form-control">
+                            <option>30</option>
+                            <option>45</option>
+                            <option selected>60</option>
+                            <option>90</option>
+                            <option>120</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Interviewer(s) *</label>
+                        <input type="text" class="form-control" placeholder="Enter interviewer names" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interview Location/Link</label>
+                        <input type="text" class="form-control" placeholder="Office address or video call link">
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Notes</label>
+                        <textarea class="form-control" placeholder="Any special instructions for the interview"></textarea>
+                    </div>
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button type="button" class="btn btn-danger" onclick="closeModal('scheduleInterviewModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Schedule Interview</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Update Status Modal -->
+    <div id="updateStatusModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Candidate Status</h2>
+                <span class="close" onclick="closeModal('updateStatusModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label>Candidate</label>
+                        <input type="text" class="form-control" value="Alice Johnson - Senior Software Engineer" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Current Status</label>
+                        <input type="text" class="form-control" value="Interview Scheduled" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>New Status *</label>
+                        <select class="form-control" required>
+                            <option value="">Select New Status</option>
+                            <option>Applied</option>
+                            <option>Under Review</option>
+                            <option>Interview Scheduled</option>
+                            <option>Interviewed</option>
+                            <option>Offer Extended</option>
+                            <option>Offer Accepted</option>
+                            <option>Hired</option>
+                            <option>Rejected</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Reason/Comments</label>
+                        <textarea class="form-control" placeholder="Optional: Add notes about this status change"></textarea>
+                    </div>
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <small style="color: #6b7280;">
+                            <i class="fas fa-info-circle"></i>
+                            The candidate will be automatically notified about this status change via email.
+                        </small>
+                    </div>
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button type="button" class="btn btn-danger" onclick="closeModal('updateStatusModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Status</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notify Placement Services Modal -->
+    <div id="notifyPlacementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Notify Placement Services</h2>
+                <span class="close" onclick="closeModal('notifyPlacementModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label>Select Job Position *</label>
+                        <select class="form-control" required>
+                            <option value="">Select Position</option>
+                            <option>Senior Software Engineer</option>
+                            <option>Marketing Manager</option>
+                            <option>UX Designer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Placement Services *</label>
+                        <div style="border: 1px solid #d1d5db; padding: 15px; border-radius: 6px; max-height: 200px; overflow-y: auto;">
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" style="margin-right: 8px;"> Elite Recruitment (IT, Finance, Healthcare)
+                            </label>
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" style="margin-right: 8px;"> Tech Placement Pro (Software Development, DevOps)
+                            </label>
+                            <label style="display: block; margin-bottom: 10px;">
+                                <input type="checkbox" style="margin-right: 8px;"> Executive Search Partners (Executive, Management)
+                            </label>
+                            <label style="display: block;">
+                                <input type="checkbox" style="margin-right: 8px;"> Global Staffing Solutions (General Staffing)
+                            </label>
+                        </div>
+                        <small style="color: #6b7280;">Select one or more placement services to notify</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority Level</label>
+                        <select class="form-control">
+                            <option>Normal</option>
+                            <option>High</option>
+                            <option>Urgent</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Special Requirements</label>
+                        <textarea class="form-control" placeholder="Any specific requirements or preferences for candidates"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional Message</label>
+                        <textarea class="form-control" placeholder="Optional message to include with the notification"></textarea>
+                    </div>
+                    <div style="background: #eff6ff; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        <small style="color: #1e40af;">
+                            <i class="fas fa-info-circle"></i>
+                            Selected placement services will receive an email notification with job details and requirements.
+                        </small>
+                    </div>
+                    <div style="text-align: right; margin-top: 30px;">
+                        <button type="button" class="btn btn-danger" onclick="closeModal('notifyPlacementModal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Send Notification</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize dashboard charts only
+            initializeCharts();
+            
+            // Navigation click handlers
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Hide all content sections
+                    document.querySelectorAll('.content-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Show selected section
+                    const sectionId = this.getAttribute('data-section');
+                    const section = document.getElementById(sectionId);
+                    if (section) {
+                        section.classList.add('active');
+                        
+                        // Initialize analytics charts when analytics section is shown
+                        if (sectionId === 'analytics') {
+                            setTimeout(initializeAnalyticsCharts, 100);
+                        }
+                    }
+                    
+                    // Update page title
+                    const titles = {
+                        'dashboard': 'Dashboard',
+                        'jobs': 'My Job Postings',
+                        'applications': 'Job Applications',
+                        'interviews': 'Interview Management',
+                        'placement': 'Placement Services',
+                        'history': 'Activity History',
+                        'analytics': 'Analytics & Reports',
+                        'profile': 'Company Profile'
+                    };
+                    document.getElementById('page-title').textContent = titles[sectionId] || 'Company Panel';
+                });
+            });
+        });
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Track initialized charts to prevent duplicates
+        const initializedCharts = new Set();
+
+        // Initialize charts
+        function initializeCharts() {
+            try {
+                // Application trends chart
+                const appCtx = document.getElementById('applicationChart');
+                if (appCtx && appCtx.getContext && !initializedCharts.has('applicationChart')) {
+                    new Chart(appCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Applications Received',
+                                data: [15, 22, 35, 28, 45, 52],
+                                borderColor: '#4f46e5',
+                                backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }, {
+                                label: 'Interviews Conducted',
+                                data: [8, 12, 18, 15, 23, 28],
+                                borderColor: '#10b981',
+                                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                    initializedCharts.add('applicationChart');
+                }
+
+                // Funnel chart
+                const funnelCtx = document.getElementById('funnelChart');
+                if (funnelCtx && funnelCtx.getContext && !initializedCharts.has('funnelChart')) {
+                    new Chart(funnelCtx.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Applied', 'Interviewed', 'Offered', 'Hired'],
+                            datasets: [{
+                                data: [247, 89, 23, 8],
+                                backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6', '#10b981'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                }
+                            }
+                        }
+                    });
+                    initializedCharts.add('funnelChart');
+                }
+            } catch (e) {
+                console.log('Dashboard charts initialization skipped:', e.message);
+            }
+        }
+
+        // Initialize analytics charts when analytics section is shown
+        function initializeAnalyticsCharts() {
+            try {
+                // Hiring performance chart
+                const hiringCtx = document.getElementById('hiringChart');
+                if (hiringCtx && hiringCtx.getContext && !initializedCharts.has('hiringChart')) {
+                    new Chart(hiringCtx.getContext('2d'), {
+                        type: 'bar', 
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                            datasets: [{
+                                label: 'Hires',
+                                data: [2, 4, 3, 5, 2, 6],
+                                backgroundColor: '#10b981'
+                            }, {
+                                label: 'Offers Extended',
+                                data: [5, 8, 6, 9, 7, 12],
+                                backgroundColor: '#8b5cf6'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                    initializedCharts.add('hiringChart');
+                }
+
+                // Application sources chart
+                const sourceCtx = document.getElementById('sourceChart');
+                if (sourceCtx && sourceCtx.getContext && !initializedCharts.has('sourceChart')) {
+                    new Chart(sourceCtx.getContext('2d'), {
+                        type: 'pie',
+                        data: {
+                            labels: ['Job Board', 'Company Website', 'Referrals', 'LinkedIn', 'Placement Services'],
+                            datasets: [{
+                                data: [35, 25, 20, 15, 5],
+                                backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6'],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                }
+                            }
+                        }
+                    });
+                    initializedCharts.add('sourceChart');
+                }
+
+                // Department chart
+                const deptCtx = document.getElementById('departmentChart');
+                if (deptCtx && deptCtx.getContext && !initializedCharts.has('departmentChart')) {
+                    new Chart(deptCtx.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: ['Engineering', 'Marketing', 'Design', 'Sales', 'HR'],
+                            datasets: [{
+                                label: 'Applications',
+                                data: [89, 45, 32, 28, 15],
+                                backgroundColor: ['#4f46e5', '#10b981', '#f59e0b', '#06b6d4', '#8b5cf6']
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            indexAxis: 'y',
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                    initializedCharts.add('departmentChart');
+                }
+
+                // Pipeline chart
+                const pipelineCtx = document.getElementById('pipelineChart');
+                if (pipelineCtx && pipelineCtx.getContext && !initializedCharts.has('pipelineChart')) {
+                    new Chart(pipelineCtx.getContext('2d'), {
+                        type: 'line',
+                        data: {
+                            labels: ['Applied', 'Screened', 'Interviewed', 'Offered', 'Hired'],
+                            datasets: [{
+                                label: 'Conversion Rate',
+                                data: [100, 65, 35, 15, 8],
+                                borderColor: '#ef4444',
+                                backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value + '%';
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    initializedCharts.add('pipelineChart');
+                }
+            } catch (e) {
+                console.log('Analytics charts initialization skipped:', e.message);
+            }
+        }
+
+        // Simulate real-time updates
+        setInterval(function() {
+            // Update notification badge occasionally
+            const badges = document.querySelectorAll('.badge');
+            badges.forEach(badge => {
+                if (Math.random() > 0.98) {
+                    let currentCount = parseInt(badge.textContent);
+                    badge.textContent = currentCount + 1;
+                }
+            });
+        }, 10000);
+    </script>
+</body>
+</html>

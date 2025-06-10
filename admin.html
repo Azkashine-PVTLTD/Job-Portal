@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talent Acquisition Platform - Admin Panel</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            opacity: 0.8;
+            font-size: 14px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            margin: 5px 0;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background: rgba(255,255,255,0.1);
+            border-right: 3px solid #fff;
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            margin: -20px -20px 20px -20px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .notification-badge {
+            position: relative;
+            color: #667eea;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Dashboard Overview */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .stat-info h3 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .stat-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stat-icon {
+            font-size: 40px;
+            opacity: 0.7;
+        }
+
+        .stat-card.companies .stat-icon { color: #3498db; }
+        .stat-card.jobs .stat-icon { color: #e74c3c; }
+        .stat-card.candidates .stat-icon { color: #2ecc71; }
+        .stat-card.interviews .stat-icon { color: #f39c12; }
+
+        /* Charts Section */
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* Tables */
+        .table-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            color: #333;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-active {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* System Health */
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .health-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .health-indicator {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .health-good { background: #2ecc71; }
+        .health-warning { background: #f39c12; }
+        .health-critical { background: #e74c3c; }
+
+        /* Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .close {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 250px;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .search-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .filters-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Admin Panel</h2>
+                <p>Talent Acquisition Platform</p>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="#" class="nav-link active" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="companies">
+                        <i class="fas fa-building"></i>
+                        Company Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="jobs">
+                        <i class="fas fa-briefcase"></i>
+                        Job Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="candidates">
+                        <i class="fas fa-users"></i>
+                        Candidate Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="recruitment">
+                        <i class="fas fa-handshake"></i>
+                        Recruitment Services
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="interviews">
+                        <i class="fas fa-calendar-check"></i>
+                        Interview Management
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="users">
+                        <i class="fas fa-user-cog"></i>
+                        User Roles & Access
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="analytics">
+                        <i class="fas fa-chart-line"></i>
+                        Analytics & Reports
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link" data-section="system">
+                        <i class="fas fa-server"></i>
+                        System Health
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1 id="page-title">Dashboard Overview</h1>
+                <div class="user-info">
+                    <div class="notification-badge">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">5</span>
+                    </div>
+                    <div>
+                        <strong>Admin User</strong>
+                        <br>
+                        <small>Super Administrator</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card companies">
+                        <div class="stat-info">
+                            <h3>247</h3>
+                            <p>Registered Companies</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card jobs">
+                        <div class="stat-info">
+                            <h3>1,832</h3>
+                            <p>Active Job Postings</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card candidates">
+                        <div class="stat-info">
+                            <h3>5,691</h3>
+                            <p>Registered Candidates</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card interviews">
+                        <div class="stat-info">
+                            <h3>342</h3>
+                            <p>Interviews This Week</p>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <h3>Application Trends (Last 6 Months)</h3>
+                        <canvas id="applicationChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>User Distribution</h3>
+                        <canvas id="userChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Recent Activity</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Activity</th>
+                                <th>User</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2 mins ago</td>
+                                <td>New company registration</td>
+                                <td>TechCorp Solutions</td>
+                                <td><span class="status-badge status-pending">Pending</span></td>
+                            </tr>
+                            <tr>
+                                <td>15 mins ago</td>
+                                <td>Job posted</td>
+                                <td>Microsoft</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                            </tr>
+                            <tr>
+                                <td>1 hour ago</td>
+                                <td>Interview completed</td>
+                                <td>John Doe</td>
+                                <td><span class="status-badge status-approved">Completed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Companies Section -->
+            <div id="companies" class="content-section">
+                <div class="search-filters">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label>Search Companies</label>
+                            <input type="text" class="form-control" placeholder="Company name, industry...">
+                        </div>
+                        <div class="form-group">
+                            <label>Status Filter</label>
+                            <select class="form-control">
+                                <option>All Statuses</option>
+                                <option>Pending Approval</option>
+                                <option>Approved</option>
+                                <option>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Industry</label>
+                            <select class="form-control">
+                                <option>All Industries</option>
+                                <option>Technology</option>
+                                <option>Finance</option>
+                                <option>Healthcare</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Company Management</h3>
+                        <button class="btn btn-primary" onclick="openModal('addCompanyModal')">
+                            <i class="fas fa-plus"></i> Add Company
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Company Name</th>
+                                <th>Industry</th>
+                                <th>Contact Person</th>
+                                <th>Registration Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>TechCorp Solutions</strong><br>
+                                    <small>www.techcorp.com</small>
+                                </td>
+                                <td>Technology</td>
+                                <td>Jane Smith<br><small>jane@techcorp.com</small></td>
+                                <td>2024-05-20</td>
+                                <td><span class="status-badge status-pending">Pending Approval</span></td>
+                                <td>
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Microsoft</strong><br>
+                                    <small>www.microsoft.com</small>
+                                </td>
+                                <td>Technology</td>
+                                <td>John Doe<br><small>john@microsoft.com</small></td>
+                                <td>2024-05-18</td>
+                                <td><span class="status-badge status-approved">Approved</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-pause"></i> Suspend
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Jobs Section -->
+            <div id="jobs" class="content-section">
+                <div class="search-filters">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label>Search Jobs</label>
+                            <input type="text" class="form-control" placeholder="Job title, company...">
+                        </div>
+                        <div class="form-group">
+                            <label>Job Type</label>
+                            <select class="form-control">
+                                <option>All Types</option>
+                                <option>Full-time</option>
+                                <option>Part-time</option>
+                                <option>Contract</option>
+                                <option>Internship</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Status</label>
+                            <select class="form-control">
+                                <option>All Statuses</option>
+                                <option>Active</option>
+                                <option>Closed</option>
+                                <option>On Hold</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Job Management</h3>
+                        <button class="btn btn-primary" onclick="openModal('addJobModal')">
+                            <i class="fas fa-plus"></i> Post Job
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Job Title</th>
+                                <th>Company</th>
+                                <th>Location</th>
+                                <th>Type</th>
+                                <th>Applications</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Senior Software Engineer</strong><br>
+                                    <small>Posted 2 days ago</small>
+                                </td>
+                                <td>Microsoft</td>
+                                <td>Seattle, WA</td>
+                                <td>Full-time</td>
+                                <td>
+                                    <strong>47</strong><br>
+                                    <small>applications</small>
+                                </td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Marketing Manager</strong><br>
+                                    <small>Posted 1 week ago</small>
+                                </td>
+                                <td>TechCorp Solutions</td>
+                                <td>New York, NY</td>
+                                <td>Full-time</td>
+                                <td>
+                                    <strong>23</strong><br>
+                                    <small>applications</small>
+                                </td>
+                                <td><span class="status-badge status-approved">Closed</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-success btn-sm">
+                                        <i class="fas fa-play"></i> Reopen
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Candidates Section -->
+            <div id="candidates" class="content-section">
+                <div class="search-filters">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label>Search Candidates</label>
+                            <input type="text" class="form-control" placeholder="Name, skills, experience...">
+                        </div>
+                        <div class="form-group">
+                            <label>Experience Level</label>
+                            <select class="form-control">
+                                <option>All Levels</option>
+                                <option>Entry Level</option>
+                                <option>Mid Level</option>
+                                <option>Senior Level</option>
+                                <option>Executive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" class="form-control" placeholder="City, State">
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Candidate Management</h3>
+                        <div>
+                            <button class="btn btn-primary" onclick="openModal('uploadProfileModal')">
+                                <i class="fas fa-upload"></i> Upload Profiles
+                            </button>
+                            <button class="btn btn-success">
+                                <i class="fas fa-download"></i> Export Data
+                            </button>
+                        </div>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Skills</th>
+                                <th>Experience</th>
+                                <th>Location</th>
+                                <th>Applications</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Alice Johnson</strong><br>
+                                    <small>alice.johnson@email.com</small>
+                                </td>
+                                <td>React, Node.js, Python</td>
+                                <td>5 years</td>
+                                <td>San Francisco, CA</td>
+                                <td>3 active</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View Profile
+                                    </button>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-share"></i> Share
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Bob Smith</strong><br>
+                                    <small>bob.smith@email.com</small>
+                                </td>
+                                <td>Java, Spring, AWS</td>
+                                <td>8 years</td>
+                                <td>Austin, TX</td>
+                                <td>1 active</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View Profile
+                                    </button>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-share"></i> Share
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recruitment Services Section -->
+            <div id="recruitment" class="content-section">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Recruitment & Placement Services</h3>
+                        <button class="btn btn-primary" onclick="openModal('addRecruitmentModal')">
+                            <i class="fas fa-plus"></i> Register Service
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service Name</th>
+                                <th>Type</th>
+                                <th>Specializations</th>
+                                <th>Contact</th>
+                                <th>Active Placements</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Elite Recruitment</strong><br>
+                                    <small>www.eliterecruit.com</small>
+                                </td>
+                                <td>Recruitment Agency</td>
+                                <td>IT, Finance, Healthcare</td>
+                                <td>Sarah Wilson<br><small>sarah@eliterecruit.com</small></td>
+                                <td>15</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Tech Placement Pro</strong><br>
+                                    <small>www.techplacement.com</small>
+                                </td>
+                                <td>Placement Service</td>
+                                <td>Software Development, DevOps</td>
+                                <td>Mike Chen<br><small>mike@techplacement.com</small></td>
+                                <td>8</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View
+                                    </button>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Interviews Section -->
+            <div id="interviews" class="content-section">
+                <div class="search-filters">
+                    <div class="filters-row">
+                        <div class="form-group">
+                            <label>Date Range</label>
+                            <input type="date" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Interview Status</label>
+                            <select class="form-control">
+                                <option>All Statuses</option>
+                                <option>Scheduled</option>
+                                <option>In Progress</option>
+                                <option>Completed</option>
+                                <option>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Company</label>
+                            <select class="form-control">
+                                <option>All Companies</option>
+                                <option>Microsoft</option>
+                                <option>TechCorp Solutions</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Interview Management</h3>
+                        <button class="btn btn-primary" onclick="openModal('scheduleInterviewModal')">
+                            <i class="fas fa-calendar-plus"></i> Schedule Interview
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Candidate</th>
+                                <th>Job Position</th>
+                                <th>Company</th>
+                                <th>Interview Date</th>
+                                <th>Interview Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>Alice Johnson</strong><br>
+                                    <small>alice.johnson@email.com</small>
+                                </td>
+                                <td>Senior Software Engineer</td>
+                                <td>Microsoft</td>
+                                <td>
+                                    <strong>May 28, 2024</strong><br>
+                                    <small>2:00 PM - 3:00 PM</small>
+                                </td>
+                                <td>Technical Interview</td>
+                                <td><span class="status-badge status-pending">Scheduled</span></td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Reschedule
+                                    </button>
+                                    <button class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times"></i> Cancel
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <strong>Bob Smith</strong><br>
+                                    <small>bob.smith@email.com</small>
+                                </td>
+                                <td>Marketing Manager</td>
+                                <td>TechCorp Solutions</td>
+                                <td>
+                                    <strong>May 26, 2024</strong><br>
+                                    <small>10:00 AM - 11:00 AM</small>
+                                </td>
+                                <td>HR Interview</td>
+                                <td><span class="status-badge status-approved">Completed</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> View Feedback
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- User Roles Section -->
+            <div id="users" class="content-section">
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>User Roles & Access Management</h3>
+                        <button class="btn btn-primary" onclick="openModal('addUserModal')">
+                            <i class="fas fa-user-plus"></i> Add User
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Permissions</th>
+                                <th>Last Login</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>John Admin</strong></td>
+                                <td>john@platform.com</td>
+                                <td>Super Admin</td>
+                                <td>Full Access</td>
+                                <td>Today, 9:15 AM</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Edit Role
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Jane Manager</strong></td>
+                                <td>jane@company.com</td>
+                                <td>Company Manager</td>
+                                <td>Job Posting, Candidate Review</td>
+                                <td>Yesterday, 4:30 PM</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Edit Role
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>Mike Recruiter</strong></td>
+                                <td>mike@recruitment.com</td>
+                                <td>Recruitment Lead</td>
+                                <td>Profile Access, Placement</td>
+                                <td>Today, 11:45 AM</td>
+                                <td><span class="status-badge status-active">Active</span></td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-edit"></i> Edit Role
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analytics" class="content-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>85%</h3>
+                            <p>Application Success Rate</p>
+                        </div>
+                        <div class="stat-icon" style="color: #2ecc71;">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>23</h3>
+                            <p>Avg. Days to Hire</p>
+                        </div>
+                        <div class="stat-icon" style="color: #f39c12;">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>68%</h3>
+                            <p>Interview Show Rate</p>
+                        </div>
+                        <div class="stat-icon" style="color: #9b59b6;">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-info">
+                            <h3>142</h3>
+                            <p>Successful Placements</p>
+                        </div>
+                        <div class="stat-icon" style="color: #e74c3c;">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-section">
+                    <div class="chart-card">
+                        <h3>Monthly Hiring Trends</h3>
+                        <canvas id="hiringChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Top Industries</h3>
+                        <canvas id="industryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-header">
+                        <h3>Performance Reports</h3>
+                        <button class="btn btn-success">
+                            <i class="fas fa-download"></i> Export All Reports
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Report Type</th>
+                                <th>Period</th>
+                                <th>Generated</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Company Performance</td>
+                                <td>Q2 2024</td>
+                                <td>May 25, 2024</td>
+                                <td><span class="status-badge status-approved">Ready</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Candidate Analytics</td>
+                                <td>Monthly</td>
+                                <td>May 20, 2024</td>
+                                <td><span class="status-badge status-approved">Ready</span></td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-download"></i> Download
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- System Health Section -->
+            <div id="system" class="content-section">
+                <div class="health-grid">
+                    <div class="health-card">
+                        <div class="health-indicator health-good">
+                            <i class="fas fa-server"></i>
+                        </div>
+                        <h4>Server Status</h4>
+                        <p><strong>Operational</strong></p>
+                        <small>Uptime: 99.9%</small>
+                    </div>
+                    <div class="health-card">
+                        <div class="health-indicator health-good">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h4>Database</h4>
+                        <p><strong>Healthy</strong></p>
+                        <small>Response: 45ms</small>
+                    </div>
+                    <div class="health-card">
+                        <div class="health-indicator health-warning">
+                            <i class="fas fa-hdd"></i>
+                        </div>
+                        <h4>Storage</h4>
+                        <p><strong>Warning</strong></p>
+                        <small>75% Full</small>
+                    </div>
+                    <div class="health-card">
+                        <div class="health-indicator health-good">
+                            <i class="fas fa-wifi"></i>
+                        </div>
+                        <h4>API Endpoints</h4>
+                        <p><strong>All Active</strong></p>
+                        <small>24/24 Endpoints</small>
+                    </div>
+                    <div class="health-card">
+                        <div class="health-indicator health-good">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <h4>Email Service</h4>
+                        <p><strong>Operational</strong></p>
+                        <small>Queue: 0 pending</small>
+                    </div>
+                    <div class="health-card">
+                        <div class="health-indicator health-critical">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h4>Background Jobs</h4>
+                        <p><strong>Issues Detected</strong></p>
+                        <small>3 Failed Jobs</small>
+                    </div>
+                </div>
+
+                <div class="table-card" style="margin-top: 30px;">
+                    <div class="table-header">
+                        <h3>Recent System Logs</h3>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-sync"></i> Refresh
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Level</th>
+                                <th>Component</th>
+                                <th>Message</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2024-05-26 14:30:15</td>
+                                <td><span class="status-badge status-rejected">ERROR</span></td>
+                                <td>Background Jobs</td>
+                                <td>Email notification job failed for user ID 1247</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm">
+                                        <i class="fas fa-redo"></i> Retry
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-05-26 14:25:08</td>
+                                <td><span class="status-badge status-pending">WARN</span></td>
+                                <td>Storage</td>
+                                <td>Disk usage exceeded 75% threshold</td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">
+                                        <i class="fas fa-eye"></i> Details
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>2024-05-26 14:20:45</td>
+                                <td><span class="status-badge status-approved">INFO</span></td>
+                                <td>Database</td>
+                                <td>Database maintenance completed successfully</td>
+                                <td>-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Company Add Modal -->
+    <div id="addCompanyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Company</h2>
+                <span class="close" onclick="closeModal('addCompanyModal')">&times;</span>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" class="form-control" placeholder="Enter company name" required>
+                </div>
+                <div class="form-group">
+                    <label>Industry *</label>
+                    <select class="form-control" required>
+                        <option value="">Select Industry</option>
+                        <option>Technology</option>
+                        <option>Finance</option>
+                        <option>Healthcare</option>
+                        <option>Manufacturing</option>
+                        <option>Education</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Website</label>
+                    <input type="url" class="form-control" placeholder="https://company.com">
+                </div>
+                <div class="form-group">
+                    <label>Contact Person Name *</label>
+                    <input type="text" class="form-control" placeholder="Full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Email *</label>
+                    <input type="email" class="form-control" placeholder="contact@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Company Size</label>
+                    <select class="form-control">
+                        <option>1-10 employees</option>
+                        <option>11-50 employees</option>
+                        <option>51-200 employees</option>
+                        <option>201-500 employees</option>
+                        <option>500+ employees</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Company Description</label>
+                    <textarea class="form-control" placeholder="Brief description of the company"></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('addCompanyModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Company</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Job Add Modal -->
+    <div id="addJobModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Post New Job</h2>
+                <span class="close" onclick="closeModal('addJobModal')">&times;</span>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>Job Title *</label>
+                    <input type="text" class="form-control" placeholder="e.g., Senior Software Engineer" required>
+                </div>
+                <div class="form-group">
+                    <label>Company *</label>
+                    <select class="form-control" required>
+                        <option value="">Select Company</option>
+                        <option>Microsoft</option>
+                        <option>TechCorp Solutions</option>
+                        <option>Admin Posted Job</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Department</label>
+                    <input type="text" class="form-control" placeholder="e.g., Engineering">
+                </div>
+                <div class="form-group">
+                    <label>Location *</label>
+                    <input type="text" class="form-control" placeholder="City, State, Country" required>
+                </div>
+                <div class="form-group">
+                    <label>Job Type *</label>
+                    <select class="form-control" required>
+                        <option value="">Select Type</option>
+                        <option>Full-time</option>
+                        <option>Part-time</option>
+                        <option>Contract</option>
+                        <option>Internship</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Salary Range</label>
+                    <input type="text" class="form-control" placeholder="e.g., $80,000 - $120,000">
+                </div>
+                <div class="form-group">
+                    <label>Experience Level</label>
+                    <select class="form-control">
+                        <option>Entry Level</option>
+                        <option>Mid Level</option>
+                        <option>Senior Level</option>
+                        <option>Executive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Job Description *</label>
+                    <textarea class="form-control" placeholder="Key responsibilities and requirements" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Application Deadline</label>
+                    <input type="date" class="form-control">
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('addJobModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Post Job</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Upload Profile Modal -->
+    <div id="uploadProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Upload Candidate Profiles</h2>
+                <span class="close" onclick="closeModal('uploadProfileModal')">&times;</span>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>Upload Resumes/CVs *</label>
+                    <input type="file" class="form-control" multiple accept=".pdf,.doc,.docx" required>
+                    <small>You can select multiple files. Supported formats: PDF, DOC, DOCX</small>
+                </div>
+                <div class="form-group">
+                    <label>Target Recruitment Companies</label>
+                    <select class="form-control" multiple>
+                        <option>Elite Recruitment</option>
+                        <option>Tech Placement Pro</option>
+                        <option>Global Staffing Solutions</option>
+                        <option>Executive Search Partners</option>
+                    </select>
+                    <small>Hold Ctrl/Cmd to select multiple companies</small>
+                </div>
+                <div class="form-group">
+                    <label>Candidate Category</label>
+                    <select class="form-control">
+                        <option>General Pool</option>
+                        <option>Technology Professionals</option>
+                        <option>Finance Specialists</option>
+                        <option>Healthcare Workers</option>
+                        <option>Executive Level</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea class="form-control" placeholder="Any special instructions or candidate details"></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('uploadProfileModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload Profiles</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Recruitment Service Add Modal -->
+    <div id="addRecruitmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Register Recruitment/Placement Service</h2>
+                <span class="close" onclick="closeModal('addRecruitmentModal')">&times;</span>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>Service Type *</label>
+                    <select class="form-control" required>
+                        <option value="">Select Type</option>
+                        <option>Recruitment Agency</option>
+                        <option>Placement Service</option>
+                        <option>Executive Search</option>
+                        <option>Staffing Agency</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" class="form-control" placeholder="Enter company name" required>
+                </div>
+                <div class="form-group">
+                    <label>Website</label>
+                    <input type="url" class="form-control" placeholder="https://company.com">
+                </div>
+                <div class="form-group">
+                    <label>Contact Person *</label>
+                    <input type="text" class="form-control" placeholder="Full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Contact Email *</label>
+                    <input type="email" class="form-control" placeholder="contact@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Specializations</label>
+                    <input type="text" class="form-control" placeholder="e.g., IT, Finance, Healthcare">
+                    <small>Separate multiple specializations with commas</small>
+                </div>
+                <div class="form-group">
+                    <label>Industries Served</label>
+                    <textarea class="form-control" placeholder="List the industries this service covers"></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('addRecruitmentModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Register Service</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Schedule Interview Modal -->
+    <div id="scheduleInterviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Schedule Interview</h2>
+                <span class="close" onclick="closeModal('scheduleInterviewModal')">&times;</span>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>Candidate *</label>
+                    <select class="form-control" required>
+                        <option value="">Select Candidate</option>
+                        <option>Alice Johnson - Senior Software Engineer Application</option>
+                        <option>Bob Smith - Marketing Manager Application</option>
+                        <option>Charlie Brown - Data Analyst Application</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Interview Type *</label>
+                    <select class="form-control" required>
+                        <option value="">Select Type</option>
+                        <option>Phone Screen</option>
+                        <option>Technical Interview</option>
+                        <option>HR Interview</option>
+                        <option>Final Round</option>
+                        <option>Panel Interview</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Interview Date *</label>
+                    <input type="date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Interview Time *</label>
+                    <input type="time" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Duration (minutes)</label>
+                    <select class="form-control">
+                        <option>30</option>
+                        <option>45</option>
+                        <option selected>60</option>
+                        <option>90</option>
+                        <option>120</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Interviewer(s)</label>
+                    <input type="text" class="form-control" placeholder="Enter interviewer names or emails">
+                </div>
+                <div class="form-group">
+                    <label>Interview Location/Link</label>
+                    <input type="text" class="form-control" placeholder="Office address or video call link">
+                </div>
+                <div class="form-group">
+                    <label>Additional Notes</label>
+                    <textarea class="form-control" placeholder="Any special instructions for the interview"></textarea>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('scheduleInterviewModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Schedule Interview</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New User</h2>
+                <span class="close" onclick="closeModal('addUserModal')">&times;</span>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" class="form-control" placeholder="Enter full name" required>
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" class="form-control" placeholder="user@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>User Role *</label>
+                    <select class="form-control" required>
+                        <option value="">Select Role</option>
+                        <option>Super Admin</option>
+                        <option>Company Manager</option>
+                        <option>Company Recruiter</option>
+                        <option>Recruitment Agency Lead</option>
+                        <option>Placement Service Coordinator</option>
+                        <option>System Administrator</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Associated Organization</label>
+                    <select class="form-control">
+                        <option value="">Select Organization (if applicable)</option>
+                        <option>Microsoft</option>
+                        <option>TechCorp Solutions</option>
+                        <option>Elite Recruitment</option>
+                        <option>Tech Placement Pro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Permissions</label>
+                    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 5px; max-height: 200px; overflow-y: auto;">
+                        <label style="display: block; margin-bottom: 10px;">
+                            <input type="checkbox"> Can view all candidates
+                        </label>
+                        <label style="display: block; margin-bottom: 10px;">
+                            <input type="checkbox"> Can post jobs
+                        </label>
+                        <label style="display: block; margin-bottom: 10px;">
+                            <input type="checkbox"> Can schedule interviews
+                        </label>
+                        <label style="display: block; margin-bottom: 10px;">
+                            <input type="checkbox"> Can approve registrations
+                        </label>
+                        <label style="display: block; margin-bottom: 10px;">
+                            <input type="checkbox"> Can access analytics
+                        </label>
+                        <label style="display: block; margin-bottom: 10px;">
+                            <input type="checkbox"> Can manage user roles
+                        </label>
+                        <label style="display: block; margin-bottom: 10px;">
+                            <input type="checkbox"> Can export data
+                        </label>
+                        <label style="display: block;">
+                            <input type="checkbox"> Can access system health
+                        </label>
+                    </div>
+                </div>
+                <div style="text-align: right; margin-top: 20px;">
+                    <button type="button" class="btn btn-danger" onclick="closeModal('addUserModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Navigation functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize charts
+            initializeCharts();
+            
+            // Navigation click handlers
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all links
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    
+                    // Add active class to clicked link
+                    this.classList.add('active');
+                    
+                    // Hide all content sections
+                    document.querySelectorAll('.content-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    
+                    // Show selected section
+                    const sectionId = this.getAttribute('data-section');
+                    document.getElementById(sectionId).classList.add('active');
+                    
+                    // Update page title
+                    const titles = {
+                        'dashboard': 'Dashboard Overview',
+                        'companies': 'Company Management',
+                        'jobs': 'Job Management',
+                        'candidates': 'Candidate Management',
+                        'recruitment': 'Recruitment & Placement Services',
+                        'interviews': 'Interview Management',
+                        'users': 'User Roles & Access Management',
+                        'analytics': 'Analytics & Reports',
+                        'system': 'System Health Monitor'
+                    };
+                    document.getElementById('page-title').textContent = titles[sectionId] || 'Admin Panel';
+                });
+            });
+        });
+
+        // Modal functions
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Initialize charts
+        function initializeCharts() {
+            // Application trends chart
+            const appCtx = document.getElementById('applicationChart');
+            if (appCtx) {
+                new Chart(appCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Applications Received',
+                            data: [1200, 1900, 3000, 2800, 3200, 3800],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Interviews Scheduled',
+                            data: [400, 600, 800, 900, 1000, 1200],
+                            borderColor: '#f39c12',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // User distribution chart
+            const userCtx = document.getElementById('userChart');
+            if (userCtx) {
+                new Chart(userCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Candidates', 'Companies', 'Recruiters', 'Admins'],
+                        datasets: [{
+                            data: [5691, 247, 89, 12],
+                            backgroundColor: ['#2ecc71', '#3498db', '#e74c3c', '#f39c12'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Hiring trends chart
+            const hiringCtx = document.getElementById('hiringChart');
+            if (hiringCtx) {
+                new Chart(hiringCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [{
+                            label: 'Successful Hires',
+                            data: [45, 62, 78, 85, 92, 108],
+                            backgroundColor: '#2ecc71',
+                            borderRadius: 5
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Industry distribution chart
+            const industryCtx = document.getElementById('industryChart');
+            if (industryCtx) {
+                new Chart(industryCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Technology', 'Finance', 'Healthcare', 'Manufacturing', 'Other'],
+                        datasets: [{
+                            data: [35, 25, 20, 12, 8],
+                            backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#f5576c', '#4facfe'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Simulate real-time updates
+        setInterval(function() {
+            // Update notification badge occasionally
+            const badge = document.querySelector('.badge');
+            if (Math.random() > 0.95) {
+                let currentCount = parseInt(badge.textContent);
+                badge.textContent = currentCount + 1;
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

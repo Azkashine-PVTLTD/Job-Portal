@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talent Acquisition Platform - Azkashine for CSG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #2c3e50;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.025em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            margin-bottom: 12px;
+            font-weight: 400;
+        }
+
+        .company-info {
+            font-size: 1rem;
+            opacity: 0.85;
+            font-weight: 300;
+        }
+
+        .modules-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 32px;
+            margin-bottom: 60px;
+        }
+
+        .module-card {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .module-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        }
+
+        .module-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(15, 23, 42, 0.15);
+            border-color: #cbd5e1;
+        }
+
+        .module-icon {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 2px solid #e0f2fe;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            color: #1e40af;
+        }
+
+        .module-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .module-description {
+            color: #64748b;
+            margin-bottom: 32px;
+            line-height: 1.7;
+            text-align: center;
+            font-size: 0.95rem;
+        }
+
+        .module-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #1e40af;
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+            border: 2px solid #1e40af;
+            min-width: 180px;
+            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.2);
+        }
+
+        .module-link:hover {
+            background: #1e3a8a;
+            border-color: #1e3a8a;
+            box-shadow: 0 4px 16px rgba(30, 64, 175, 0.3);
+            transform: translateY(-1px);
+        }
+
+        footer {
+            background: #1e293b;
+            color: #cbd5e1;
+            text-align: center;
+            padding: 32px;
+            border-radius: 12px;
+            margin-top: 60px;
+            border-top: 4px solid #3b82f6;
+        }
+
+        footer p:first-child {
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 8px;
+        }
+
+        footer p:last-child {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .features {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 48px;
+            box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+        }
+
+        .features h2 {
+            margin-bottom: 32px;
+            text-align: center;
+            color: #1e293b;
+            font-size: 1.875rem;
+            font-weight: 700;
+        }
+
+        .features-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-item {
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .feature-item:hover {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+        }
+
+        .feature-item strong {
+            color: #1e40af;
+            font-size: 1rem;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.25rem;
+            }
+            
+            .modules-container {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .container {
+                padding: 16px;
+            }
+
+            .module-card {
+                padding: 32px 24px;
+            }
+
+            header {
+                padding: 48px 24px;
+                margin-bottom: 40px;
+            }
+
+            .features {
+                padding: 32px 24px;
+            }
+
+            .features-list {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Talent Acquisition Platform</h1>
+            <div class="subtitle">Comprehensive Solution for Modern Recruitment</div>
+            <div class="company-info">Developed by <strong>Azkashine</strong> for <strong>CSG</strong></div>
+        </header>
+
+        <div class="features">
+            <h2>Platform Overview</h2>
+            <div class="features-list">
+                <div class="feature-item">
+                    <strong>🎯 Smart Job Matching</strong><br>
+                    Advanced algorithms to connect the right talent with the right opportunities
+                </div>
+                <div class="feature-item">
+                    <strong>📊 Real-time Analytics</strong><br>
+                    Comprehensive insights and reporting across all recruitment activities
+                </div>
+                <div class="feature-item">
+                    <strong>🔄 Streamlined Workflow</strong><br>
+                    Automated processes from application to placement
+                </div>
+                <div class="feature-item">
+                    <strong>🛡️ Secure & Compliant</strong><br>
+                    Enterprise-grade security with full data protection compliance
+                </div>
+            </div>
+        </div>
+
+        <div class="modules-container">
+            <div class="module-card">
+                <div class="module-icon">👑</div>
+                <h2 class="module-title">Admin Module</h2>
+                <p class="module-description">
+                    Complete platform oversight and management. Approve companies, manage users, 
+                    post jobs, conduct interviews, and monitor system analytics. Full CRUD operations 
+                    across all modules with comprehensive reporting and system health monitoring.
+                </p>
+                <a href="admin.html" class="module-link">Access Admin Panel</a>
+            </div>
+
+            <div class="module-card">
+                <div class="module-icon">🏢</div>
+                <h2 class="module-title">Company Module</h2>
+                <p class="module-description">
+                    Dedicated portal for companies to manage their recruitment needs. Post job vacancies, 
+                    track applications, schedule interviews, manage candidate statuses, and access 
+                    detailed analytics of recruitment activities.
+                </p>
+                <a href="company.html" class="module-link">Company Portal</a>
+            </div>
+
+            <div class="module-card">
+                <div class="module-icon">🤝</div>
+                <h2 class="module-title">Placement Services</h2>
+                <p class="module-description">
+                    Specialized interface for recruitment agencies and placement services. Access shared 
+                    candidate profiles, manage client relationships, track placement success rates, 
+                    and collaborate with companies for optimal talent matching.
+                </p>
+                <a href="placement_Services.html" class="module-link">Placement Portal</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 <strong>Azkashine</strong>. All rights reserved.</p>
+            <p>Talent Acquisition Platform - Connecting talent with opportunity</p>
+        </footer>
+    </div>
+</body>
+</html>
